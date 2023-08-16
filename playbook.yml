@@ -1,0 +1,133 @@
+- name: Install Jenkins , aws cli, kubectl, docker
+  hosts: app
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Donwloading dependencies
+      block:
+        - name: Downloading Jenkins files
+          changed_when: false
+          ansible.builtin.shell: >
+            curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+        - name: Preparing Jenkins for installation
+          changed_when: false
+          ansible.builtin.shell: >
+            echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+        - name: Add Docker’s official GPG key
+          changed_when: false
+          ansible.builtin.shell: "install -m 0755 -d /etc/apt/keyrings ; curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg ; chmod a+r /etc/apt/keyrings/docker.gpg"
+
+        - name: Setting up Docker’s repository
+          changed_when: false
+          ansible.builtin.shell: >
+            echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    - name: Update apt cache (for Ubuntu)
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install unzip , .etc
+      ansible.builtin.apt:
+        name:
+          - unzip
+          - ca-certificates
+          - curl
+          - gnupg
+          - openjdk-17-jre
+        state: present
+
+    # installing AWS CLI -----------------------------------------------------
+
+    - name: Downloading AWS CLI
+      ansible.builtin.shell: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+    - name: Unzip AWS CLI
+      ansible.builtin.command: unzip awscliv2.zip
+
+    - name: Installing AWS CLI
+      ansible.builtin.command: sudo ./aws/install
+
+    - name: Copy aws credentials
+      ansible.builtin.copy:
+        src: aws_credentials/
+        dest: /home/ubuntu/.aws/
+        mode: '600'
+        owner: ubuntu
+        group: ubuntu
+
+    # installing kubectl -----------------------------------------------------
+
+    - name: Downloading kubectl
+      ansible.builtin.shell: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      changed_when: false
+
+    - name: Install kubectl
+      ansible.builtin.command: install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      changed_when: false
+
+
+    # Installing Docker -----------------------------------------------------
+
+
+    - name: Install Docker
+      block:
+        - name: Install Docker Engine, containerd, and Docker Compose.
+          ansible.builtin.apt:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+              - docker-buildx-plugin
+              - docker-compose-plugin
+            state: present
+
+        - name: Adding user to docker group # needs logout and login
+          changed_when: false
+          ansible.builtin.shell: >
+            usermod -aG docker ubuntu
+
+    # will solve it -----------------------------------------------------
+
+    - name: Installing Jenkins
+      block:
+        - name: Installing Jenkins
+          ansible.builtin.apt:
+            name: jenkins
+            state: present
+
+        - name: Adding user to docker group # needs logout and login
+          changed_when: false
+          ansible.builtin.shell: >
+            usermod -aG docker,sudo jenkins;
+
+        - name: Change file permissions
+          ansible.builtin.file:
+            path: /var/run/docker.sock
+            mode: '666'
+
+    # -----------------------------------------------------
+
+
+    - name: Copy aws credentials
+      ansible.builtin.copy:
+        src: aws_credentials/
+        dest: /var/lib/jenkins/.aws/
+        mode: '600'
+        owner: jenkins
+        group: jenkins
+
+    - name: Reloading docker
+      ansible.builtin.service:
+        name: docker
+        state: restarted
+
+    - name: Reloading jenkins
+      ansible.builtin.service:
+        name: jenkins
+        state: restarted
+
+# restart docker and jenkins services:
+
+# aws eks --region us-east-1 update-kubeconfig --name sprints-eks-cluster
