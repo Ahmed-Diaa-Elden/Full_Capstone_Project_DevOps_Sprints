@@ -109,7 +109,6 @@
 
     # -----------------------------------------------------
 
-
     - name: Copy aws credentials
       ansible.builtin.copy:
         src: aws_credentials/
@@ -128,6 +127,20 @@
         name: jenkins
         state: restarted
 
-# restart docker and jenkins services:
+    # Run Docker compose Project -----------------------------------------------------
+
+    - name: Copy Project Docker Compose
+      ansible.builtin.copy:
+        src: Project
+        dest: /home/ubuntu/
+        mode: '600'
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Run Docker Compose
+      changed_when: false
+      ansible.builtin.shell: >
+        docker compose up;
+
 
 # aws eks --region us-east-1 update-kubeconfig --name sprints-eks-cluster
