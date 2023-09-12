@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pure-mysql
+spec:
+  selector:
+    matchLabels:
+      app: pure-mysql
+  template:
+    metadata:
+      labels:
+        app: pure-mysql
+    spec:
+      containers:
+      - name: pure-mysql
+        image: mysql:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        ports:
+        - containerPort: 3306

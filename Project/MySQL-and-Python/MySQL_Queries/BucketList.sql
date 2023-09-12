@@ -9,7 +9,7 @@ USE BucketList;
 
 INSERT INTO tbl_user
 values
-(10,'ahmed','ahmed','ahmed');
+(13,'test_name','Test_Name','test');
 
 
 DELIMITER $$

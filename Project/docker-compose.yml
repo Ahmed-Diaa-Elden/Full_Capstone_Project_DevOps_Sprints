@@ -1,8 +1,8 @@
 version: '3.8'
 services:
   db:
-    image: mysql:v1
-    build: ./MySQL-and-Python/MySQL_Queries/Dockerfile
+    image: mysql:latest
+    # build: ./MySQL-and-Python/MySQL_Queries/Dockerfile
     container_name: mysql_DB
     environment:
       MYSQL_ROOT_PASSWORD: root

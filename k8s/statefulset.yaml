@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-st
+spec:
+  selector:
+    matchLabels:
+      app: mysql-db
+  serviceName: mysql-headless
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-db
+    spec:
+      containers:
+      - name: mysql-con
+        image: mysql:latest
+        ports:
+        - containerPort: 3306
+          name: db-port
+        volumeMounts:
+        - name: db-init
+          mountPath: /docker-entrypoint-initdb.d
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom: 
+            secretKeyRef: 
+              key: ROOT_PASSWORD
+              name: db-secret
+          # value: root
+        - name: MYSQL_DATABASE
+          valueFrom: 
+            secretKeyRef: 
+              key: DATABASE
+              name: db-secret
+          # value: BucketList
+      volumes:
+      - name: db-init
+        configMap:
+          name: initdb-config
+          # Create PV and PVC and link them to keep this data
+      # - name: mysql-data
+      #   persistentVolumeClaim:
+      #     claimName: my-pvc
+
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Delete
+    whenScaled: Delete
+    
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: manual
+      resources:
+        requests:
+          storage: 1Gi
+          
+  # # what is volumeClaimTemplates
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: DB_volume
+  #   spec:
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     resources:
+  #       requests:
+  #         storage: 50Mi

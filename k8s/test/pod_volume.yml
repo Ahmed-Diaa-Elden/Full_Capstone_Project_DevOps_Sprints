@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: busy-box
+    image: busybox
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    command:
+    - sleep
+    - "3600"
+    volumeMounts:
+    - name: test-vol
+      mountPath: /lol
+  volumes:
+  - name: test-vol
+    configMap:
+      name: mysql-initdb-config
+    # persistentVolumeClaim:
+    #   claimName: my-local-pvc
+    # hostPath:
+    #   path: /home/lenovo/Downloads/task/test/
+      # type: FileOrCreate
+
+# # kubectl delete -f pod_volume.yml --force --grace-period=0
+
+# -----------------------------
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: busybox
+# spec:
+#   selector:
+#     matchLabels:
+#       app: mysql
+#   replicas: 1
+#   template:
+#     metadata:
+#       labels:
+#         app: mysql
+#     spec:
+#       containers:
+#         - name: mysql
+#           image: busybox
+#           resources:
+#             limits:
+#               memory: "128Mi"
+#               cpu: "500m"
+#           command:
+#           - sleep
+#           - "3600"
+#           volumeMounts:
+#             - mountPath: /docker-entrypoint-initdb.d
+#               name: mysql-initdb
+#       volumes:
+#         - name: mysql-initdb
+#           persistentVolumeClaim:
+#             claimName: mysql-initdb-pv-claim
