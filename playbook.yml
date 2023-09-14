@@ -57,6 +57,14 @@
         owner: ubuntu
         group: ubuntu
 
+    # installing eksctl -----------------------------------------------------
+
+    - name: Downloading and extracting eksctl
+      ansible.builtin.shell: curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+
+    - name: Move the extracted binary to /usr/local/bin
+      ansible.builtin.command: sudo mv /tmp/eksctl /usr/local/bin
+
     # installing kubectl -----------------------------------------------------
 
     - name: Downloading kubectl
@@ -88,7 +96,7 @@
           ansible.builtin.shell: >
             usermod -aG docker ubuntu
 
-    # will solve it -----------------------------------------------------
+    # Installing Jenkins -----------------------------------------------------
 
     - name: Installing Jenkins
       block:
@@ -126,6 +134,30 @@
       ansible.builtin.service:
         name: jenkins
         state: restarted
+
+    # ECR -----------------------------------------------------
+
+    # - name: Installing Jenkins
+    #   block:
+    #     - name: Get ECR Repository URL from Terraform
+    #       ansible.builtin.shell: terraform output ECR_URL
+    #       register: ecr_url_output
+    #       ignore_errors: true
+    #       changed_when: false
+
+    #     - name: Set ECR Repository URL
+    #       ansible.builtin.set_fact:
+    #         ecr_repository_url: "{{ ecr_url_output.stdout | trim }}"
+    #       when: ecr_url_output.rc == 0
+
+    #     - name: Authenticate ECR
+    #       changed_when: false
+    #       ansible.builtin.shell: >
+    #         set -o pipefail && \
+    #         aws ecr get-login-password --region us-east-1 | \
+    #         docker login --username AWS --password-stdin \
+    #         {{ ecr_repository_url }}
+
 
     # Run Docker compose Project -----------------------------------------------------
 

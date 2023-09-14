@@ -92,10 +92,10 @@ resource "aws_subnet" "subnet-terraform" {
 resource "aws_route_table" "route-terraform-private" {
   vpc_id = aws_vpc.vpc-terraform.id
 
-  route {
-    cidr_block     = var.anyOne-cidr
-    gateway_id     = "local"
-  }
+  # route {
+  #   cidr_block     = var.anyOne-cidr
+  #   gateway_id     = "local"
+  # }
 
   tags = {
     Name = "private-route-table"

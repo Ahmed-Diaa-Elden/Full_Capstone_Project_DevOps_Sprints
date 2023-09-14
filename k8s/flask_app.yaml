@@ -16,6 +16,8 @@ spec:
       labels:
         app: web
     spec:
+      imagePullSecrets:
+        - name: ecr-credentials-secret
       containers:
       - name: flask-app
         image: flask-app:v1

@@ -23,14 +23,14 @@ module "sprints-vpc-1" {
 #   instance_tag_name = "terraform-instance-Public"
 # }
 
-module "terraform-instance-Provisioned" {
-  source = "./provisioned-instances"
-  ubuntu-instance = var.ubuntu-instance
-  securityG_id = module.sprints-vpc-1.id_terraform-securityG
-  id-subnet_terraform = module.sprints-vpc-1.id_public-2-subnet_terraform
-  # user_data_script = var.user_data_script
-  instance_tag_name = "terraform-instance-Provisioned"
-}
+# module "terraform-instance-Provisioned" {
+#   source = "./provisioned-instances"
+#   ubuntu-instance = var.ubuntu-instance
+#   securityG_id = module.sprints-vpc-1.id_terraform-securityG
+#   id-subnet_terraform = module.sprints-vpc-1.id_public-2-subnet_terraform
+#   # user_data_script = var.user_data_script
+#   instance_tag_name = "terraform-instance-Provisioned"
+# }
 
 # module "terraform-instance-Private" {
 #   source = "./instances"
@@ -43,15 +43,20 @@ module "terraform-instance-Provisioned" {
 #   instance_tag_name = "terraform-instance-Private"
 # }
 
-# module "terraform-instance-Private-2" {
-#   source = "./instances"
-#   ubuntu-instance = var.ubuntu-instance
-#   is_public_ip = false
-#   securityG_id = module.sprints-vpc-1.id_terraform-securityG-private
-#   id-subnet_terraform = module.sprints-vpc-1.id_private-2-subnet_terraform
-#   user_data_script = var.user_data_script_private
-#   # command = "echo Private-ip-2: ${module.terraform-instance-Private-2.Private-ip} >> ./all-ips.txt"
-#   instance_tag_name = "terraform-instance-Private-2"
+# -------------------------------------
+
+# ECR Module
+
+module "terraform-ecr" {
+  source = "./ecr"
+  ecr_tag_name = "sprints-ecr"
+}
+
+# -------------------------------------
+
+# EKS Module
+
+# module "terraform-ecr" {
+#   source = "./eks"
+#   ecr_tag_name = "sprints-ecr"
 # }
-
-
