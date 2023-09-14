@@ -175,4 +175,4 @@
         docker compose up;
 
 
-# aws eks --region us-east-1 update-kubeconfig --name sprints-eks-cluster
+# aws eks --region us-east-1 update-kubeconfig --name pc-eks

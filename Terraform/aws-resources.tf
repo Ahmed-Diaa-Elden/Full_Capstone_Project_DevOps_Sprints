@@ -23,14 +23,14 @@ module "sprints-vpc-1" {
 #   instance_tag_name = "terraform-instance-Public"
 # }
 
-# module "terraform-instance-Provisioned" {
-#   source = "./provisioned-instances"
-#   ubuntu-instance = var.ubuntu-instance
-#   securityG_id = module.sprints-vpc-1.id_terraform-securityG
-#   id-subnet_terraform = module.sprints-vpc-1.id_public-2-subnet_terraform
-#   # user_data_script = var.user_data_script
-#   instance_tag_name = "terraform-instance-Provisioned"
-# }
+module "terraform-instance-Provisioned" {
+  source = "./provisioned-instances"
+  ubuntu-instance = var.ubuntu-instance
+  securityG_id = module.sprints-vpc-1.id_terraform-securityG
+  id-subnet_terraform = module.sprints-vpc-1.id_public-2-subnet_terraform
+  # user_data_script = var.user_data_script
+  instance_tag_name = "terraform-instance-Provisioned"
+}
 
 # module "terraform-instance-Private" {
 #   source = "./instances"
@@ -56,7 +56,11 @@ module "terraform-ecr" {
 
 # EKS Module
 
-# module "terraform-ecr" {
-#   source = "./eks"
-#   ecr_tag_name = "sprints-ecr"
-# }
+module "terraform-eks" {
+  source = "./eks"
+  eks_subnets = [module.sprints-vpc-1.id_public-1-subnet_terraform, module.sprints-vpc-1.id_public-2-subnet_terraform]
+  instance-subnet_id = module.sprints-vpc-1.id_public-1-subnet_terraform
+  vpc_security_group_ids = module.sprints-vpc-1.id_terraform-securityG
+  key_pair_name = var.ubuntu-instance[1]
+  eks_tag_name = "sprints-eks"
+}

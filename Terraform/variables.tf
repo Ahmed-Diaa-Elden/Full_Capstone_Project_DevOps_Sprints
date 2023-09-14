@@ -27,3 +27,5 @@ variable "ubuntu-instance" {
   default = ["t2.micro", "Sprints-Key-pair"]
 }
 
+# EKS ----------------------------
+

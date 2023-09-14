@@ -1,75 +1,9 @@
-# data "aws_iam_policy_document" "eks_cluster_policy" {
-#   statement {
-#     actions = [
-#       "eks:DescribeCluster",
-#       "eks:DescribeUpdate",
-#       "eks:DescribeAddon",
-#       "eks:ListClusters",
-#       "eks:ListUpdates",
-#       "eks:ListAddons",
-#       "eks:CreateAddon",
-#       "eks:DeleteAddon",
-#       "eks:UpdateAddon",
-#       "eks:TagResource",
-#       "eks:UntagResource",
-#       "eks:UpdateClusterVersion",
-#       "eks:UpdateClusterConfig",
-#       "eks:UpdateNodegroupConfig",
-#       "eks:CreateFargateProfile",
-#       "eks:DeleteFargateProfile",
-#       "eks:UpdateFargateProfile",
-#       "eks:CreateNodegroup",
-#       "eks:DeleteNodegroup",
-#       "eks:UpdateNodegroupVersion",
-#       "eks:UpdateNodegroupConfig",
-#       "eks:TagResource",
-#       "eks:UntagResource",
-#       "eks:AssociateEncryptionConfig",
-#       "eks:DisassociateEncryptionConfig",
-#       "eks:CreateClusterConfig",
-#       "eks:DeleteClusterConfig",
-#       "eks:DescribeClusterConfig",
-#       "eks:ListClusterConfigs",
-#       "eks:UpdateClusterConfig",
-#       "eks:CreateAddonVersion",
-#       "eks:DescribeAddonVersions",
-#       "eks:ListAddonVersions",
-#       "eks:DeleteAddonVersion",
-#       "eks:CreateUpdate",
-#       "eks:DeleteUpdate",
-#       "eks:UpdateAddonVersion",
-#       "eks:CreateNodegroup",
-#       "eks:DeleteNodegroup",
-#       "eks:UpdateNodegroupConfig",
-#       "eks:UpdateNodegroupVersion",
-#       "eks:CreateFargateProfile",
-#       "eks:DeleteFargateProfile",
-#       "eks:UpdateFargateProfile",
-#       "eks:CreateClusterConfig",
-#       "eks:DeleteClusterConfig",
-#       "eks:DescribeClusterConfig",
-#       "eks:ListClusterConfigs",
-#       "eks:UpdateClusterConfig",
-#       "eks:CreateAddonVersion",
-#       "eks:DescribeAddonVersions",
-#       "eks:ListAddonVersions",
-#       "eks:DeleteAddonVersion",
-#       "eks:CreateUpdate",
-#       "eks:DeleteUpdate",
-#       "eks:UpdateAddonVersion"
-#     ]
+# I am role -------------------------------------------
 
-#     resources = [
-#       "arn:aws:eks:us-east-1:123456789012:cluster/my-eks-cluster",
-#       "arn:aws:eks:us-east-1:123456789012:nodegroup/my-eks-cluster/*"
-#     ]
-#   }
-# }
+resource "aws_iam_role" "master" {
+  name = "ed-eks-master"
 
-resource "aws_iam_role" "eks_cluster_role" {
-  name = "my-eks-cluster-role"
-
-  assume_role_policy = <<EOF
+  assume_role_policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -82,45 +16,182 @@ resource "aws_iam_role" "eks_cluster_role" {
     }
   ]
 }
-EOF
+POLICY
 }
 
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy_attachment" {
-  role       = aws_iam_role.eks_cluster_role.name
+resource "aws_iam_role_policy_attachment" "AmazonEKSClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.master.name
 }
 
-# resource "aws_iam_policy" "eks_cluster_policy" {
-#   name   = "my-eks-cluster-policy"
-#   policy = data.aws_iam_policy_document.eks_cluster_policy.json
-# }
+resource "aws_iam_role_policy_attachment" "AmazonEKSServicePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+  role       = aws_iam_role.master.name
+}
 
-# resource "aws_iam_role_policy_attachment" "eks_cluster_policy_attachment" {
-#   role       = aws_iam_role.eks_cluster_role.name
-#   policy_arn = aws_iam_policy.eks_cluster_policy.arn
-# }
+resource "aws_iam_role_policy_attachment" "AmazonEKSVPCResourceController" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+  role       = aws_iam_role.master.name
+}
 
-# --------------------------------------------------------
+resource "aws_iam_role" "worker" {
+  name = "ed-eks-worker"
 
-module "eks_cluster" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "17.0.0"
-
-  cluster_name    = "my-eks-cluster"
-  cluster_version = "1.21"
-
-  vpc_id = "vpc-12345678"  # Replace with your VPC ID
-
-  subnet_ids = [
-    "subnet-12345678",  # Replace with your subnet IDs
-    "subnet-23456789",
-    "subnet-34567890"
-  ]
-
-  worker_groups = [
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
     {
-      instance_type = "t2.micro"
-      asg_max_size  = 3
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
     }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_policy" "autoscaler" {
+  name   = "ed-eks-autoscaler-policy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribeAutoScalingInstances",
+        "autoscaling:DescribeTags",
+        "autoscaling:DescribeLaunchConfigurations",
+        "autoscaling:SetDesiredCapacity",
+        "autoscaling:TerminateInstanceInAutoScalingGroup",
+        "ec2:DescribeLaunchTemplateVersions"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.worker.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.worker.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.worker.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.worker.name
+}
+
+resource "aws_iam_role_policy_attachment" "x-ray" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+  role       = aws_iam_role.worker.name
+}
+resource "aws_iam_role_policy_attachment" "s3" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  role       = aws_iam_role.worker.name
+}
+
+resource "aws_iam_role_policy_attachment" "autoscaler" {
+  policy_arn = aws_iam_policy.autoscaler.arn
+  role       = aws_iam_role.worker.name
+}
+
+resource "aws_iam_instance_profile" "worker" {
+  depends_on = [aws_iam_role.worker]
+  name       = "ed-eks-worker-new-profile"
+  role       = aws_iam_role.worker.name
+}
+
+# EKS Cluster --------------------------------------------------------
+
+resource "aws_eks_cluster" "eks" {
+  name     = "pc-eks"
+  role_arn = aws_iam_role.master.arn
+
+
+  vpc_config {
+    subnet_ids = var.eks_subnets
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.AmazonEKSClusterPolicy,
+    aws_iam_role_policy_attachment.AmazonEKSServicePolicy,
+    aws_iam_role_policy_attachment.AmazonEKSVPCResourceController,
+    aws_iam_role_policy_attachment.AmazonEKSVPCResourceController,
+    #aws_subnet.pub_sub1,
+    #aws_subnet.pub_sub2,
+  ]
+  tags = {
+    Name = var.eks_tag_name
+  }
+
+}
+
+# EKS Node Group --------------------------------------------------------
+
+# resource "aws_instance" "kubectl-server" {
+#   ami                         = "ami-053b0d53c279acc90"
+#   key_name                    = "ubuntu_kubectl-server"
+#   instance_type               = "t2.micro"
+#   associate_public_ip_address = true
+#   subnet_id                   = var.instance-subnet_id
+#   # subnet_id                   = aws_subnet.public-1.id
+#   vpc_security_group_ids      = [var.vpc_security_group_ids]
+#   # vpc_security_group_ids      = [aws_security_group.allow_tls.id]
+
+#   tags = {
+#     Name = "kubectl"
+#   }
+
+# }
+
+resource "aws_eks_node_group" "node-grp" {
+  cluster_name    = aws_eks_cluster.eks.name
+  node_group_name = "pc-node-group"
+  node_role_arn   = aws_iam_role.worker.arn
+  subnet_ids      = var.eks_subnets
+  capacity_type   = "ON_DEMAND"
+  disk_size       = "20"
+  instance_types  = ["t2.small"]
+
+  remote_access {
+    ec2_ssh_key               = var.key_pair_name
+    source_security_group_ids = [var.vpc_security_group_ids]
+  }
+
+  labels = tomap({ env = "dev" })
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
+  }
+
+  update_config {
+    max_unavailable = 1
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
+    #aws_subnet.pub_sub1,
+    #aws_subnet.pub_sub2,
   ]
 }

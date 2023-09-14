@@ -25,16 +25,16 @@ variable "user_data_script" {
   EOT
 }
 
-variable "ld_private_dns" {
-  type = string
-  # Hint
-  # aws_instance.apache_instance_2.private_ip
-}
+# variable "ld_private_dns" {
+#   type = string
+#   # Hint
+#   # aws_instance.apache_instance_2.private_ip
+# }
 
-variable "ld_public_dns" {
-  type = string
-  # default = "echo ${self.private_ip} >> ./private_ip.txt"
-}
+# variable "ld_public_dns" {
+#   type = string
+#   # default = "echo ${self.private_ip} >> ./private_ip.txt"
+# }
 
 variable "instance_tag_name" {
   type = string

@@ -64,6 +64,7 @@ resource "aws_subnet" "subnet-terraform" {
   vpc_id     = aws_vpc.vpc-terraform.id
   cidr_block = each.value[0]
   availability_zone = each.value[1]
+  map_public_ip_on_launch = true
 
   tags = {
     Name = each.key
