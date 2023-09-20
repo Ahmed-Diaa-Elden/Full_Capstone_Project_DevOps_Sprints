@@ -2,10 +2,10 @@
 #   value = aws_vpc.test.id
 # }
 
-# output "latest_ubuntu_ami_id" {
-#   value = data.aws_ami.latest_ubuntu.id
-# # The result "ami-053b0d53c279acc90"
-# }
+output "latest_ubuntu_ami_id" {
+  value = data.aws_ami.latest_ubuntu.id
+# The result "ami-053b0d53c279acc90"
+}
 
 output "Public-ip" {
   # value = aws_instance.terraform-instance-Provisioned-Public.public_ip

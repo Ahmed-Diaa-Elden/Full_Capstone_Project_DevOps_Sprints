@@ -5,7 +5,7 @@ output "Public-ip-terraform-instance-2" {
 
 output "AMI_From_Datasource" {
   # value = aws_instance.terraform-instance-Private.private_ip
-  value = module.terraform-instance-Public.latest_ubuntu_ami_id
+  value = module.terraform-instance-Provisioned.latest_ubuntu_ami_id
 }
 
 output "ECR_URL" {

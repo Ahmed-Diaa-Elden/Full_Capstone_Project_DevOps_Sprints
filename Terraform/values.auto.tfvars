@@ -4,7 +4,7 @@
 
 vpc-terraform-cidr_block = "10.0.0.0/16"
 anyOne-cidr = "0.0.0.0/0"
-ubuntu-instance = ["t2.micro", "Sprints-Key-pair"]
+ubuntu-instance = ["t2.medium", "Sprints-Key-pair"]
 
 subnet-terraform = {
   "public-subnet-terraform" = ["10.0.0.0/24","us-east-1a"],

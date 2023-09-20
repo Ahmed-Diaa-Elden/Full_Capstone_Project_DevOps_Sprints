@@ -169,10 +169,12 @@
         owner: ubuntu
         group: ubuntu
 
-    - name: Run Docker Compose
-      changed_when: false
-      ansible.builtin.shell: >
-        docker compose up;
+    # - name: Run Docker Compose
+    #   changed_when: false
+    #   ansible.builtin.shell: >
+    #     cd /home/ubuntu/Project;
+    #     docker compose up -d;
+    #     cd -;
 
     # Getting EKS Kube Config -----------------------------------------------------
 

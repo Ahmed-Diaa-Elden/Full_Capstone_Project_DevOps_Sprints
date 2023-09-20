@@ -45,6 +45,20 @@ resource "aws_security_group" "terraform-securityG" {
     protocol    = "tcp"
     cidr_blocks = [var.anyOne-cidr]
   }
+  ingress {
+    description = "Jenkins from VPC"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = [var.anyOne-cidr]
+  }
+  ingress {
+    description = "Flask_app from VPC"
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = [var.anyOne-cidr]
+  }
 
   egress {
     from_port        = 0

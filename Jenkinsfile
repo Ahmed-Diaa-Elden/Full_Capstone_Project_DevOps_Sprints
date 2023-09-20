@@ -43,6 +43,7 @@ pipeline {
             steps {
                 echo 'Deploying to minikube'
                 sh 'aws eks --region us-east-1 update-kubeconfig --name pc-eks'
+                sh 'cd k8s'
                 sh 'kubectl apply -f pv.yaml'
                 sh 'kubectl apply -f config.yaml'
                 sh 'kubectl apply -f service_headless.yaml'
@@ -54,6 +55,7 @@ pipeline {
                 sh 'kubectl get no -o wide'
                 echo 'Getting podes info'
                 sh 'kubectl get po -o wide'
+                sh 'cd ..'
             }
         }
     }
