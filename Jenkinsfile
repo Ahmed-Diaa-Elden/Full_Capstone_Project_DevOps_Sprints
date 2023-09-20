@@ -43,19 +43,17 @@ pipeline {
             steps {
                 echo 'Deploying to minikube'
                 sh 'aws eks --region us-east-1 update-kubeconfig --name pc-eks'
-                sh 'cd k8s'
-                sh 'kubectl apply -f pv.yaml'
-                sh 'kubectl apply -f config.yaml'
-                sh 'kubectl apply -f service_headless.yaml'
-                sh 'kubectl apply -f secret.yaml'
-                sh 'kubectl apply -f statefulset.yaml'
-                sh 'kubectl apply -f service_flask.yaml'
-                sh 'kubectl apply -f flask_app.yaml'
+                sh 'kubectl apply -f k8s/pv.yaml'
+                sh 'kubectl apply -f k8s/config.yaml'
+                sh 'kubectl apply -f k8s/service_headless.yaml'
+                sh 'kubectl apply -f k8s/secret.yaml'
+                sh 'kubectl apply -f k8s/statefulset.yaml'
+                sh 'kubectl apply -f k8s/service_flask.yaml'
+                sh 'kubectl apply -f k8s/flask_app.yaml'
                 echo 'Getting nodes info'
                 sh 'kubectl get no -o wide'
                 echo 'Getting podes info'
                 sh 'kubectl get po -o wide'
-                sh 'cd ..'
             }
         }
     }
