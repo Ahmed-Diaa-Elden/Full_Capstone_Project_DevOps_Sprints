@@ -60,13 +60,3 @@ spec:
       resources:
         requests:
           storage: 1Gi
-          
-  # # what is volumeClaimTemplates
-  # volumeClaimTemplates:
-  # - metadata:
-  #     name: DB_volume
-  #   spec:
-  #     accessModes: [ "ReadWriteOnce" ]
-  #     resources:
-  #       requests:
-  #         storage: 50Mi

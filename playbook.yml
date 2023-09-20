@@ -174,5 +174,12 @@
       ansible.builtin.shell: >
         docker compose up;
 
+    # Getting EKS Kube Config -----------------------------------------------------
+
+    # - name: Getting EKS Kube Config
+    #   changed_when: false
+    #     # cd /home/ubuntu/Project
+    #   ansible.builtin.shell: >
+    #     aws eks --region us-east-1 update-kubeconfig --name pc-eks;
 
 # aws eks --region us-east-1 update-kubeconfig --name pc-eks
