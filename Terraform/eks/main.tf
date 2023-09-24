@@ -184,7 +184,8 @@ resource "helm_release" "aws-load-balancer-controller" {
 
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
+  # namespace  = "kube-system"
+  namespace  = "default"
   version    = "1.4.1"
 
   set {
@@ -194,7 +195,8 @@ resource "helm_release" "aws-load-balancer-controller" {
 
   set {
     name  = "image.tag"
-    value = "v2.6.1"
+    value = "v2.4.2"
+    # value = "v2.6.1"
   }
 
   set {
