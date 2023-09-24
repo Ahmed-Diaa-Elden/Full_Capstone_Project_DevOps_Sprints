@@ -5,9 +5,10 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  ingressClassName: nginx-Flask
+  # ingressClassName: nginx-Flask
   rules:
-  - http:
+  - host: "flask.test999.com"
+    http:
       paths:
       - path: /*
         pathType: ImplementationSpecific

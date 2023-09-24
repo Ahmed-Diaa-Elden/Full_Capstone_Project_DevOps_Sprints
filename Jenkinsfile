@@ -49,6 +49,7 @@ pipeline {
                 sh 'kubectl apply -f k8s/secret.yaml'
                 sh 'kubectl apply -f k8s/statefulset.yaml'
                 sh 'kubectl apply -f k8s/service_flask.yaml'
+                sh 'kubectl apply -f k8s/ingress controller.yaml'
                 sh 'kubectl apply -f k8s/flask_app.yaml'
                 echo 'Getting nodes info'
                 sh 'kubectl get no -o wide'
