@@ -51,6 +51,8 @@ pipeline {
                 sh 'kubectl apply -f k8s/service_flask.yaml'
                 sh 'kubectl apply -f k8s/ingress controller.yaml'
                 sh 'kubectl apply -f k8s/flask_app.yaml'
+                echo 'Getting ingress info'
+                sh 'kubectl get ing -n default'
                 echo 'Getting nodes info'
                 sh 'kubectl get no -o wide'
                 echo 'Getting podes info'

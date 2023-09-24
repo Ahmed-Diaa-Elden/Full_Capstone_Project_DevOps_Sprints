@@ -3,11 +3,13 @@ kind: Ingress
 metadata:
   name: Flask-ingress
   annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   # ingressClassName: nginx-Flask
+  ingressClassName: alb
   rules:
-  - host: "flask.test999.com"
+  - host: flask.test999.com
     http:
       paths:
       - path: /*

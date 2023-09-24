@@ -1,5 +1,6 @@
 aws_credentials/
 Sprints-Key-pair.pem
+Terraform/Sprints-Key-pair.pem
 Terraform/.terraform/
 Terraform/terraform.*
 Terraform/.terraform.lock.hcl

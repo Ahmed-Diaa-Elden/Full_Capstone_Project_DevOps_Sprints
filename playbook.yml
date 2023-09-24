@@ -115,6 +115,15 @@
             path: /var/run/docker.sock
             mode: '666'
 
+    # Installing Helm -----------------------------------------------------
+
+    - name: Installing Helm
+      changed_when: false
+      ansible.builtin.shell: >
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3;
+        chmod 700 get_helm.sh;
+        ./get_helm.sh
+
     # -----------------------------------------------------
 
     - name: Copy aws credentials
