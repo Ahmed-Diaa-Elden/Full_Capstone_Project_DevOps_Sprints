@@ -20,10 +20,10 @@ spec:
         - name: regcred
       containers:
       - name: flask-app
-        # image: 244282014725.dkr.ecr.us-east-1.amazonaws.com/sprints-ecr:v1
-        image: flask-app:v1
+        image: 244282014725.dkr.ecr.us-east-1.amazonaws.com/sprints-ecr:v1
+        # image: flask-app:v1
         # never pull the image policy
-        imagePullPolicy: Never
+        imagePullPolicy: Always
         resources:
           limits:
             memory: "128Mi"
