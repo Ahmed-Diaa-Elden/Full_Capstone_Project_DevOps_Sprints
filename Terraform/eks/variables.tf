@@ -25,3 +25,13 @@ variable "key_pair_name" {
   default = "Sprints-Key-pair"
 }
 
+# variable "anyOne-cidr" {
+#   type = string
+#   default = "0.0.0.0/0"
+# }
+
+# variable "eks_SG_vpc" {
+#   type = string
+#   # default = "0.0.0.0/0"
+# }
+

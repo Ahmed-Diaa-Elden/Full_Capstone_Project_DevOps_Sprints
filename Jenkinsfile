@@ -29,6 +29,7 @@ pipeline {
                 echo ' pushing client image into ECR repo...'
                     sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 244282014725.dkr.ecr.us-east-1.amazonaws.com"
                     sh "docker push 244282014725.dkr.ecr.us-east-1.amazonaws.com/sprints-ecr:${env.BUILD_NUMBER}"
+                    sh "docker rmi -f 244282014725.dkr.ecr.us-east-1.amazonaws.com/sprints-ecr:${env.BUILD_NUMBER}"
             }
         }
 
@@ -61,3 +62,4 @@ pipeline {
         }
     }
 }
+

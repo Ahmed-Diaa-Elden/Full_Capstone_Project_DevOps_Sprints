@@ -184,8 +184,8 @@ resource "helm_release" "aws-load-balancer-controller" {
 
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
-  # namespace  = "kube-system"
-  namespace  = "default"
+  namespace  = "kube-system"
+  # namespace  = "default"
   version    = "1.4.1"
 
   set {
@@ -225,6 +225,9 @@ resource "aws_eks_cluster" "eks" {
 
   vpc_config {
     subnet_ids = var.eks_subnets
+    # security_group_ids = [
+    #   aws_security_group.terraform-security-EKS_port.id,  # Add the new security group here
+    # ]
   }
 
   depends_on = [
@@ -242,22 +245,6 @@ resource "aws_eks_cluster" "eks" {
 }
 
 # EKS Node Group --------------------------------------------------------
-
-# resource "aws_instance" "kubectl-server" {
-#   ami                         = "ami-053b0d53c279acc90"
-#   key_name                    = "ubuntu_kubectl-server"
-#   instance_type               = "t2.micro"
-#   associate_public_ip_address = true
-#   subnet_id                   = var.instance-subnet_id
-#   # subnet_id                   = aws_subnet.public-1.id
-#   vpc_security_group_ids      = [var.vpc_security_group_ids]
-#   # vpc_security_group_ids      = [aws_security_group.allow_tls.id]
-
-#   tags = {
-#     Name = "kubectl"
-#   }
-
-# }
 
 resource "aws_eks_node_group" "node-grp" {
   cluster_name    = aws_eks_cluster.eks.name
@@ -293,3 +280,41 @@ resource "aws_eks_node_group" "node-grp" {
     #aws_subnet.pub_sub2,
   ]
 }
+
+# EKS Security Group --------------------------------------------------------
+
+# resource "aws_security_group" "terraform-security-EKS_port" {
+#   name_prefix = "terraform-security-EKS_port"
+#   vpc_id     = var.eks_SG_vpc
+
+#   ingress {
+#     description = "Flask_app from VPC"
+#     from_port   = 30000
+#     to_port     = 32700
+#     protocol    = "tcp"
+#     cidr_blocks = [var.anyOne-cidr]
+#   }
+  
+#   # ingress {
+  
+
+#   #   description = "Flask_app from VPC"
+#   #   from_port   = 0  # Allow traffic from any port
+#   #   to_port     = 65535  # Allow traffic to any port
+#   #   protocol    = "tcp"
+#   #   security_groups = [aws_security_group.terraform-security-EKS_port.id]
+#   #   # cidr_blocks = [aws_security_group.my_security_group.id]  # Reference the security group's ID
+#   # }
+
+#   egress {
+#     from_port        = 0
+#     to_port          = 0
+#     protocol         = "-1"
+#     cidr_blocks      = [var.anyOne-cidr]
+#     # ipv6_cidr_blocks = ["::/0"]
+#   }
+  
+#   tags = {
+#     Name = "terraform-security-EKS_port"
+#   }
+# }
