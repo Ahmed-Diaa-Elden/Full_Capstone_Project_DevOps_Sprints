@@ -10,10 +10,10 @@ variable "eks_tag_name" {
   # default = module.module-name.id_terraform-securityG
 }
 
-variable "instance-subnet_id" {
-  type = string
-  # default = "sprints-ecr"
-}
+# variable "instance-subnet_id" {
+#   type = string
+#   # default = "sprints-ecr"
+# }
 
 variable "vpc_security_group_ids" {
   type = string

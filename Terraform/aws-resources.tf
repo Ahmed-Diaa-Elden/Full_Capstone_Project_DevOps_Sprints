@@ -59,7 +59,7 @@ module "terraform-ecr" {
 module "terraform-eks" {
   source = "./eks"
   eks_subnets = [module.sprints-vpc-1.id_public-1-subnet_terraform, module.sprints-vpc-1.id_public-2-subnet_terraform]
-  instance-subnet_id = module.sprints-vpc-1.id_public-1-subnet_terraform
+  # instance-subnet_id = module.sprints-vpc-1.id_public-1-subnet_terraform
   vpc_security_group_ids = module.sprints-vpc-1.id_terraform-securityG
   key_pair_name = var.ubuntu-instance[1]
   eks_tag_name = "sprints-eks"

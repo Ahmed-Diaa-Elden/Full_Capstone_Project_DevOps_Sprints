@@ -61,7 +61,7 @@ resource "aws_security_group" "terraform-securityG" {
   }
   ingress {
     description = "Flask_app from VPC"
-    from_port   = 32000
+    from_port   = 30000
     to_port     = 32700
     protocol    = "tcp"
     cidr_blocks = [var.anyOne-cidr]
