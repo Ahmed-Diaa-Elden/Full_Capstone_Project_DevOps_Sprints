@@ -155,13 +155,6 @@ resource "aws_iam_role" "aws_load_balancer_controller" {
   name               = "aws-load-balancer-controller"
 }
 
-resource "null_resource" "update_file_aws_load_balancer_controller_arn" {
-  provisioner "local-exec" {
-    command = <<EOT
-      sed -i "s|eks.amazonaws.com/role-arn: .*|eks.amazonaws.com/role-arn: ${aws_iam_role.aws_load_balancer_controller.arn}|" ../k8s/service-account.yaml
-    EOT
-  }
-}
 resource "aws_iam_policy" "aws_load_balancer_controller" {
   policy = file("./AWSLoadBalancerController.json")
   name   = "AWSLoadBalancerController"
@@ -174,53 +167,53 @@ resource "aws_iam_role_policy_attachment" "aws_load_balancer_controller_attach" 
 
 # For Ingress Controller: HELM
 
-# provider "helm" {
-#   kubernetes {
-#     host                   = aws_eks_cluster.eks.endpoint
-#     cluster_ca_certificate = base64decode(aws_eks_cluster.eks.certificate_authority[0].data)
-#     exec {
-#       api_version = "client.authentication.k8s.io/v1beta1"
-#       args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.eks.id]
-#       command     = "aws"
-#     }
-#   }
-# }
+provider "helm" {
+  kubernetes {
+    host                   = aws_eks_cluster.eks.endpoint
+    cluster_ca_certificate = base64decode(aws_eks_cluster.eks.certificate_authority[0].data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.eks.id]
+      command     = "aws"
+    }
+  }
+}
 
-# resource "helm_release" "aws-load-balancer-controller" {
-#   name = "aws-load-balancer-controller"
+resource "helm_release" "aws-load-balancer-controller" {
+  name = "aws-load-balancer-controller"
 
-#   repository = "https://aws.github.io/eks-charts"
-#   chart      = "aws-load-balancer-controller"
-#   namespace  = "kube-system"
-#   # namespace  = "default"
-#   version    = "1.4.1"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+  # namespace  = "default"
+  version    = "1.4.1"
 
-#   set {
-#     name  = "clusterName"
-#     value = aws_eks_cluster.eks.id
-#   }
+  set {
+    name  = "clusterName"
+    value = aws_eks_cluster.eks.id
+  }
 
-#   set {
-#     name  = "image.tag"
-#     value = "v2.4.2"
-#     # value = "v2.6.1"
-#   }
+  set {
+    name  = "image.tag"
+    value = "v2.4.2"
+    # value = "v2.6.1"
+  }
 
-#   set {
-#     name  = "serviceAccount.name"
-#     value = "aws-load-balancer-controller"
-#   }
+  set {
+    name  = "serviceAccount.name"
+    value = "aws-load-balancer-controller"
+  }
 
-#   set {
-#     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-#     value = aws_iam_role.aws_load_balancer_controller.arn
-#   }
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = aws_iam_role.aws_load_balancer_controller.arn
+  }
 
-#   depends_on = [
-#     aws_eks_node_group.node-grp,
-#     aws_iam_role_policy_attachment.aws_load_balancer_controller_attach
-#   ]
-# }
+  depends_on = [
+    aws_eks_node_group.node-grp,
+    aws_iam_role_policy_attachment.aws_load_balancer_controller_attach
+  ]
+}
 
 
 # EKS Cluster --------------------------------------------------------
