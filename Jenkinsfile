@@ -40,6 +40,15 @@ pipeline {
             }
         }
 
+        stage('Deploying to AWS Load Balancer With Helm') {
+            steps {
+                echo 'Deploying to AWS Load Balancer With Helm'
+                sh 'helm repo add eks https://aws.github.io/eks-charts'
+                sh 'kubectl apply -f k8s/service-account.yaml'
+                sh 'helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=pc-eks --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller'
+            }
+        }
+
         stage('Deploy to EKS') {
             steps {
                 echo 'Deploying to minikube'

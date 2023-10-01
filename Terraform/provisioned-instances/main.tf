@@ -56,7 +56,7 @@ resource "null_resource" "Terraform_provisioner" {
     type     = "ssh"
     host     = aws_instance.terraform-instance-Provisioned.public_ip
     user     = "ubuntu"
-    private_key = file("../../Sprints-Key-pair.pem")  # Replace with the path to your private key
+    private_key = file("../Sprints-Key-pair.pem")  # Replace with the path to your private key
   }
 
   # provisioner "file" {

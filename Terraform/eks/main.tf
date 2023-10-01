@@ -155,6 +155,13 @@ resource "aws_iam_role" "aws_load_balancer_controller" {
   name               = "aws-load-balancer-controller"
 }
 
+resource "null_resource" "update_file_aws_load_balancer_controller_arn" {
+  provisioner "local-exec" {
+    command = <<EOT
+      sed -i "s|eks.amazonaws.com/role-arn: .*|eks.amazonaws.com/role-arn: ${aws_iam_role.aws_load_balancer_controller.arn}|" ../k8s/service-account.yaml
+    EOT
+  }
+}
 resource "aws_iam_policy" "aws_load_balancer_controller" {
   policy = file("./AWSLoadBalancerController.json")
   name   = "AWSLoadBalancerController"
@@ -167,53 +174,53 @@ resource "aws_iam_role_policy_attachment" "aws_load_balancer_controller_attach" 
 
 # For Ingress Controller: HELM
 
-provider "helm" {
-  kubernetes {
-    host                   = aws_eks_cluster.eks.endpoint
-    cluster_ca_certificate = base64decode(aws_eks_cluster.eks.certificate_authority[0].data)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.eks.id]
-      command     = "aws"
-    }
-  }
-}
+# provider "helm" {
+#   kubernetes {
+#     host                   = aws_eks_cluster.eks.endpoint
+#     cluster_ca_certificate = base64decode(aws_eks_cluster.eks.certificate_authority[0].data)
+#     exec {
+#       api_version = "client.authentication.k8s.io/v1beta1"
+#       args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.eks.id]
+#       command     = "aws"
+#     }
+#   }
+# }
 
-resource "helm_release" "aws-load-balancer-controller" {
-  name = "aws-load-balancer-controller"
+# resource "helm_release" "aws-load-balancer-controller" {
+#   name = "aws-load-balancer-controller"
 
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
-  # namespace  = "default"
-  version    = "1.4.1"
+#   repository = "https://aws.github.io/eks-charts"
+#   chart      = "aws-load-balancer-controller"
+#   namespace  = "kube-system"
+#   # namespace  = "default"
+#   version    = "1.4.1"
 
-  set {
-    name  = "clusterName"
-    value = aws_eks_cluster.eks.id
-  }
+#   set {
+#     name  = "clusterName"
+#     value = aws_eks_cluster.eks.id
+#   }
 
-  set {
-    name  = "image.tag"
-    value = "v2.4.2"
-    # value = "v2.6.1"
-  }
+#   set {
+#     name  = "image.tag"
+#     value = "v2.4.2"
+#     # value = "v2.6.1"
+#   }
 
-  set {
-    name  = "serviceAccount.name"
-    value = "aws-load-balancer-controller"
-  }
+#   set {
+#     name  = "serviceAccount.name"
+#     value = "aws-load-balancer-controller"
+#   }
 
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = aws_iam_role.aws_load_balancer_controller.arn
-  }
+#   set {
+#     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+#     value = aws_iam_role.aws_load_balancer_controller.arn
+#   }
 
-  depends_on = [
-    aws_eks_node_group.node-grp,
-    aws_iam_role_policy_attachment.aws_load_balancer_controller_attach
-  ]
-}
+#   depends_on = [
+#     aws_eks_node_group.node-grp,
+#     aws_iam_role_policy_attachment.aws_load_balancer_controller_attach
+#   ]
+# }
 
 
 # EKS Cluster --------------------------------------------------------
@@ -225,9 +232,9 @@ resource "aws_eks_cluster" "eks" {
 
   vpc_config {
     subnet_ids = var.eks_subnets
-    # security_group_ids = [
-    #   aws_security_group.terraform-security-EKS_port.id,  # Add the new security group here
-    # ]
+    security_group_ids = [
+      aws_security_group.terraform-security-EKS_port.id,  # Add the new security group here
+    ]
   }
 
   depends_on = [
@@ -283,38 +290,38 @@ resource "aws_eks_node_group" "node-grp" {
 
 # EKS Security Group --------------------------------------------------------
 
-# resource "aws_security_group" "terraform-security-EKS_port" {
-#   name_prefix = "terraform-security-EKS_port"
-#   vpc_id     = var.eks_SG_vpc
+resource "aws_security_group" "terraform-security-EKS_port" {
+  name_prefix = "terraform-security-EKS_port"
+  vpc_id     = var.eks_SG_vpc
 
-#   ingress {
-#     description = "Flask_app from VPC"
-#     from_port   = 30000
-#     to_port     = 32700
-#     protocol    = "tcp"
-#     cidr_blocks = [var.anyOne-cidr]
-#   }
+  ingress {
+    description = "Flask_app from VPC"
+    from_port   = 30000
+    to_port     = 32700
+    protocol    = "tcp"
+    cidr_blocks = [var.anyOne-cidr]
+  }
   
-#   # ingress {
+  # ingress {
   
 
-#   #   description = "Flask_app from VPC"
-#   #   from_port   = 0  # Allow traffic from any port
-#   #   to_port     = 65535  # Allow traffic to any port
-#   #   protocol    = "tcp"
-#   #   security_groups = [aws_security_group.terraform-security-EKS_port.id]
-#   #   # cidr_blocks = [aws_security_group.my_security_group.id]  # Reference the security group's ID
-#   # }
+  #   description = "Flask_app from VPC"
+  #   from_port   = 0  # Allow traffic from any port
+  #   to_port     = 65535  # Allow traffic to any port
+  #   protocol    = "tcp"
+  #   security_groups = [aws_security_group.terraform-security-EKS_port.id]
+  #   # cidr_blocks = [aws_security_group.my_security_group.id]  # Reference the security group's ID
+  # }
 
-#   egress {
-#     from_port        = 0
-#     to_port          = 0
-#     protocol         = "-1"
-#     cidr_blocks      = [var.anyOne-cidr]
-#     # ipv6_cidr_blocks = ["::/0"]
-#   }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = [var.anyOne-cidr]
+    # ipv6_cidr_blocks = ["::/0"]
+  }
   
-#   tags = {
-#     Name = "terraform-security-EKS_port"
-#   }
-# }
+  tags = {
+    Name = "terraform-security-EKS_port"
+  }
+}
