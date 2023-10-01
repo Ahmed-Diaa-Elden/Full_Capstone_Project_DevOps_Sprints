@@ -56,7 +56,7 @@ resource "null_resource" "Terraform_provisioner" {
     type     = "ssh"
     host     = aws_instance.terraform-instance-Provisioned.public_ip
     user     = "ubuntu"
-    private_key = file("../Sprints-Key-pair.pem")  # Replace with the path to your private key
+    private_key = file("./Sprints-Key-pair.pem")  # Replace with the path to your private key
   }
 
   # provisioner "file" {
@@ -72,7 +72,7 @@ resource "null_resource" "Terraform_provisioner" {
     # This will create file on my local machine that contains ip of the created instance "EC2"
     command = <<-EOT
       sleep 60
-      chmod u+x ../inventory.sh
+      chmod u+x ./inventory.sh
       ./inventory.sh ${aws_instance.terraform-instance-Provisioned.public_ip}
     EOT
   

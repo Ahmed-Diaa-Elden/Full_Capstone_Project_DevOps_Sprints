@@ -63,6 +63,6 @@ module "terraform-eks" {
   vpc_security_group_ids = module.sprints-vpc-1.id_terraform-securityG
   key_pair_name = var.ubuntu-instance[1]
   eks_tag_name = "sprints-eks"
-  # anyOne-cidr= var.anyOne-cidr
-  # eks_SG_vpc= module.sprints-vpc-1.vpc_id
+  anyOne-cidr= var.anyOne-cidr
+  eks_SG_vpc= module.sprints-vpc-1.vpc_id
 }
