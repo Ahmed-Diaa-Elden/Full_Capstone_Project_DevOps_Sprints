@@ -225,9 +225,9 @@ resource "aws_eks_cluster" "eks" {
 
   vpc_config {
     subnet_ids = var.eks_subnets
-    security_group_ids = [
-      aws_security_group.terraform-security-EKS_port.id,  # Add the new security group here
-    ]
+    # security_group_ids = [
+    #   aws_security_group.terraform-security-EKS_port.id,  # Add the new security group here
+    # ]
   }
 
   depends_on = [
@@ -281,40 +281,30 @@ resource "aws_eks_node_group" "node-grp" {
   ]
 }
 
-# EKS Security Group --------------------------------------------------------
+# # EKS Security Group --------------------------------------------------------
 
-resource "aws_security_group" "terraform-security-EKS_port" {
-  name_prefix = "terraform-security-EKS_port"
-  vpc_id     = var.eks_SG_vpc
+# resource "aws_security_group" "terraform-security-EKS_port" {
+#   name_prefix = "terraform-security-EKS_port"
+#   vpc_id     = var.eks_SG_vpc
 
-  ingress {
-    description = "Flask_app from VPC"
-    from_port   = 30000
-    to_port     = 32700
-    protocol    = "tcp"
-    cidr_blocks = [var.anyOne-cidr]
-  }
-  
-  # ingress {
+#   ingress {
+#     description = "Flask_app from VPC"
+#     from_port   = 30000
+#     to_port     = 32700
+#     protocol    = "tcp"
+#     cidr_blocks = [var.anyOne-cidr]
+#   }
   
 
-  #   description = "Flask_app from VPC"
-  #   from_port   = 0  # Allow traffic from any port
-  #   to_port     = 65535  # Allow traffic to any port
-  #   protocol    = "tcp"
-  #   security_groups = [aws_security_group.terraform-security-EKS_port.id]
-  #   # cidr_blocks = [aws_security_group.my_security_group.id]  # Reference the security group's ID
-  # }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = [var.anyOne-cidr]
-    # ipv6_cidr_blocks = ["::/0"]
-  }
+#   egress {
+#     from_port        = 0
+#     to_port          = 0
+#     protocol         = "-1"
+#     cidr_blocks      = [var.anyOne-cidr]
+#     # ipv6_cidr_blocks = ["::/0"]
+#   }
   
-  tags = {
-    Name = "terraform-security-EKS_port"
-  }
-}
+#   tags = {
+#     Name = "terraform-security-EKS_port"
+#   }
+# }
