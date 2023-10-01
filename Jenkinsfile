@@ -29,7 +29,6 @@ pipeline {
                 echo ' pushing client image into ECR repo...'
                     sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 244282014725.dkr.ecr.us-east-1.amazonaws.com"
                     sh "docker push 244282014725.dkr.ecr.us-east-1.amazonaws.com/sprints-ecr:${env.BUILD_NUMBER}"
-                    sh "docker rmi -f 244282014725.dkr.ecr.us-east-1.amazonaws.com/sprints-ecr:${env.BUILD_NUMBER}"
             }
         }
 
@@ -43,9 +42,7 @@ pipeline {
         stage('Deploy to EKS') {
             steps {
                 echo 'Deploying to EKS'
-                echo 'Update EKS Kubeconfig'
                 sh 'aws eks --region us-east-1 update-kubeconfig --name pc-eks'
-                echo 'Applying Yaml files'
                 sh 'kubectl apply -f k8s/pv.yaml'
                 sh 'kubectl apply -f k8s/config.yaml'
                 sh 'kubectl apply -f k8s/service_headless.yaml'
@@ -60,6 +57,8 @@ pipeline {
                 sh 'kubectl get no -o wide'
                 echo 'Getting podes info'
                 sh 'kubectl get po -o wide'
+                echo 'Deleting image'
+                sh "docker rmi -f 244282014725.dkr.ecr.us-east-1.amazonaws.com/sprints-ecr:${env.BUILD_NUMBER}"
             }
         }
     }
